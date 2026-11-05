@@ -1,0 +1,7 @@
+# Copie para application-local.properties (mesma pasta, ignorado pelo git) e preencha a senha.
+# URL e usuário da FIAP já estão no application.properties.
+spring.datasource.password=
+
+# Só para desenvolvimento no Oracle local (Docker, ver database/README.md):
+# spring.datasource.url=jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+# spring.datasource.username=
