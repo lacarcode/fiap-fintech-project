@@ -9,3 +9,7 @@
 *.png  binary
 *.docx binary
 *.class binary
+
+# Maven Wrapper: script sh sempre LF; scripts Windows sempre CRLF
+mvnw  text eol=lf
+*.cmd text eol=crlf

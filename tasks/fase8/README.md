@@ -1,0 +1,54 @@
+# Plano de Tarefas — Fase 8: API Spring Boot + Front-end React
+
+Plano detalhado (código, testes e comandos de cada tarefa): [`plano-implementacao.md`](plano-implementacao.md).
+Revisão crítica contra o enunciado (matriz requisito × plano, correções R1–R11): [`revisao-critica.md`](revisao-critica.md).
+
+Entidades com CRUD completo (back + front): **Usuario, Receita, Gasto, Investimento, ContaBancaria, Categoria**.
+Entidades financeiras com CRUD (mínimo exigido = 3): Receita, Gasto e Investimento.
+Banco: DDL atual (`database/ddl/01-create-tables.sql`) aplicado na FIAP; o JPA só **valida** (`ddl-auto=validate`).
+Entrega: ZIP com `api/`, `web/` (sem `node_modules`), `database/ddl/` e `README.md`.
+Branch: `feat/spring-react` (criada a partir da `main` depois do merge da Fase 7).
+
+Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Concluída`
+
+| ID  | Tarefa | Depende de | Status |
+|-----|--------|------------|--------|
+| P00 | Integrar Fase 7 na `main`, criar branch, `.gitignore` e `.gitattributes` | — | ⬜ |
+| B01 | Projeto Spring Boot + 6 entidades JPA + repositories (validados contra o DDL) | P00 | ⬜ |
+| B02 | Tratamento de erros + Usuario (service, login, controller) | B01 | ⬜ |
+| B03 | ContaBancaria e Categoria — CRUD completo com regras | B02 | ⬜ |
+| B04 | Gasto (DTOs, service, controller) | B03 | ⬜ |
+| B05 | Receita (DTOs, service, controller) | B03 | ⬜ |
+| B06 | Investimento (DTOs, service, controller) | B03 | ⬜ |
+| B07 | Resumo financeiro (`GET /api/usuarios/{id}/resumo`) | B04, B05, B06 | ⬜ |
+| B08 | Dados de demonstração + execução na FIAP + evidências | B07 | ⬜ |
+| F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ⬜ |
+| F02 | Componentes base, layout, rotas, Login, Cadastro e página de erro | F01 | ⬜ |
+| F03 | Página inicial (resumo) + páginas de Gastos | F02 | ⬜ |
+| F04 | Páginas de Receitas | F03 | ⬜ |
+| F05 | Páginas de Investimentos | F02 | ⬜ |
+| F06 | Páginas de Contas bancárias e Categorias | F02 | ⬜ |
+| F07 | Perfil (consultar/editar/excluir usuário) | F02 | ⬜ |
+| E01 | README de entrega, AGENTS.md, teste ponta a ponta e ZIP validado | B08, F03–F07 | ⬜ |
+
+Trilhas paralelas: **B01→B08** (back) e **F01→F07** (front) só se encontram em E01.
+O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas compartilham.
+
+## Decisões
+- D-F8-01 — Manter o DDL atual; Hibernate com `ddl-auto=validate` (nunca cria nem apaga tabela).
+- D-F8-02 — Projetos novos em `api/` e `web/`; `backend/` (JDBC, Fase 7) e `frontend/` (protótipo HTML) ficam como histórico.
+- D-F8-03 — Login simples: `POST /api/auth/login` confere o hash BCrypt (só `spring-security-crypto`, sem Spring Security/JWT); a sessão fica no front (Context + localStorage). Limitação conhecida: a API não verifica posse dos dados.
+- D-F8-04 — Pacotes por camada (`model`, `repository`, `service`, `controller`, `dto`), porque o enunciado avalia as camadas explicitamente.
+- D-F8-05 — Usuário de teste garantido na subida da API (`DadosDemo`), com senha configurável; resolve a falta de hash conhecido na FIAP.
+- D-F8-06 — `DELETE /api/usuarios/{id}` remove receitas, gastos, investimentos e contas do usuário na mesma transação; se houver metas/dívidas, responde 409.
+- D-F8-07 (revisão) — Todo controller tem GET/POST/PUT/DELETE e página no front (R2/R3); Receita entra como 4ª entidade com CRUD (R1).
+- D-F8-08 (revisão) — URL e usuário da FIAP ficam no `application.properties`; só a senha fica fora do git (R5).
+- D-F8-09 (revisão) — A página inicial é `/` (dashboard logado), alimentada por `GET /api/usuarios/{id}/resumo` (R4).
+
+## Pendências para decidir antes de E01
+- [ ] Credenciais da FIAP no ZIP. **Recomendado:** incluir `api/application-local.properties` só no ZIP (nunca no git), como na Fase 7; sem isso, o avaliador não consegue subir a API.
+- [ ] Nome do ZIP (`RM571266.zip`, como na Fase 7, ou o padrão pedido na plataforma).
+- [ ] Confirmar se esta atividade é mesmo a "Fase 8" (nomes de pasta `tasks/fase8/` e `docs/07-api-spring-react/`).
+
+## Notas de execução
+(preencher durante a execução)

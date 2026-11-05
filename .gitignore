@@ -28,3 +28,10 @@ __pycache__/
 
 # Credenciais de conexao do backend (modelo: backend/db.properties.example)
 backend/db.properties
+
+# Fase 8 — API Spring Boot (api/) e SPA React (web/)
+api/target/
+api/application-local.properties
+web/node_modules/
+web/dist/
+web/.env.local
