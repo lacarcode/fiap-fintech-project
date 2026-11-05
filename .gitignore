@@ -35,3 +35,6 @@ api/application-local.properties
 web/node_modules/
 web/dist/
 web/.env.local
+
+# ZIP de entrega (contem credenciais; nunca versionar)
+entrega/

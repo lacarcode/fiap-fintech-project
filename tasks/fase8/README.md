@@ -29,7 +29,7 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 | F05 | Páginas de Investimentos | F02 | ✅ |
 | F06 | Páginas de Contas bancárias e Categorias | F02 | ✅ |
 | F07 | Perfil (consultar/editar/excluir usuário) | F02 | ✅ |
-| E01 | README de entrega, AGENTS.md, teste ponta a ponta e ZIP validado | B08, F03–F07 | ⬜ |
+| E01 | README de entrega, AGENTS.md, teste ponta a ponta e ZIP validado | B08, F03–F07 | ✅ |
 
 Trilhas paralelas: **B01→B08** (back) e **F01→F07** (front) só se encontram em E01.
 O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas compartilham.
@@ -46,8 +46,8 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
 - D-F8-09 (revisão) — A página inicial é `/` (dashboard logado), alimentada por `GET /api/usuarios/{id}/resumo` (R4).
 
 ## Pendências para decidir antes de E01
-- [ ] Credenciais da FIAP no ZIP. **Recomendado:** incluir `api/application-local.properties` só no ZIP (nunca no git), como na Fase 7; sem isso, o avaliador não consegue subir a API.
-- [ ] Nome do ZIP (`RM571266.zip`, como na Fase 7, ou o padrão pedido na plataforma).
+- [x] Credenciais da FIAP no ZIP — **decidido: incluir** `api/application-local.properties` só no ZIP (nunca no git; `entrega/` está no `.gitignore`).
+- [x] Nome do ZIP — **decidido: `RM571266.zip`**.
 - [ ] Confirmar se esta atividade é mesmo a "Fase 8" (nomes de pasta `tasks/fase8/` e `docs/07-api-spring-react/`).
 
 ## Notas de execução
@@ -72,3 +72,26 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
   - **Perfil/cadastro**: senhas diferentes bloqueadas no cliente; cadastro entra sozinho; editar nome atualiza menu e sessão; e-mail duplicado mostra 409; sem conta o formulário de gasto avisa para cadastrar em Contas; excluir a conta apaga usuário, conta e receita, encerra a sessão (login do excluído = 401). Usuário de teste ficou intacto (1/2/3/2 e 10 categorias).
 - Correção: import sem uso (`useCallback`) em `CategoriasPage` removido no arquivo e no plano.
 - Todas as páginas de domínio estão implementadas; resta a E01 (README de entrega, AGENTS.md, execução ponta a ponta na FIAP, ZIP e validação).
+- E01 (2026-11-04): README de entrega e `AGENTS.md` atualizados; teste ponta a ponta na FIAP em `docs/07-api-spring-react/evidencias/teste-ponta-a-ponta.md` (10 passos; banco da FIAP idêntico antes e depois); suítes: API 98/98 com `-Dit.oracle=true`, web 19/19 + build.
+- ZIP: `entrega/RM571266.zip` (147 arquivos, 147 KB) com `api/`, `web/` (sem `node_modules`; com `package.json` e `package-lock.json`), `database/ddl/` e `README.md`; `mvnw` com LF e permissão 755; entradas com `/`; só o `application-local.properties` contém a senha e `application.properties` não tem senha. Validado numa pasta limpa seguindo só o README: API subiu na FIAP, `npm install` + 19 testes + `npm run dev`, login do usuário de teste pela tela e 98 testes da API.
+- Armadilhas desta etapa: (1) `grep -c $'\r'` neste shell casa todas as linhas (falso positivo de CRLF); medir com `tr -cd '\r' | wc -c`. (2) `Compress-Archive` do PowerShell 5.1 grava `\` nos nomes do ZIP; usar Python `zipfile` com `create_system = 3`. (3) O container do Oracle local para quando o WSL encerra: reiniciar antes de rodar `-Dit.oracle=true`.
+
+## Checklist final contra o enunciado
+- [x] B1 — Entidades JPA: Usuario, ContaBancaria, Categoria, Receita, Gasto, Investimento
+- [x] B2 — Repository JPA para cada entidade (6)
+- [x] B3 — Service com regras de negócio para cada repository (+ resumo e auth)
+- [x] B4 — Todo RestController com GET, POST, PUT e DELETE
+- [x] B5 — Status HTTP por verbo (200/201/204/400/401/404/409/422), cobertos por testes MockMvc e verificados na FIAP
+- [x] B6 — Tabelas na instância FIAP (DDL no ZIP; consulta `USER_TABLES` na evidência)
+- [x] B7 — API conectada à FIAP (`application.properties` + log de subida)
+- [x] B8 — Mais de 3 entidades com todas as camadas (Receita, Gasto, Investimento, Usuario, Conta, Categoria)
+- [x] F1 — Componentização
+- [x] F2 — Rotas SPA
+- [x] F3 — Props e estado (hooks) entre componentes
+- [x] F4 — Página de login
+- [x] F5 — Página inicial e página de erro personalizada
+- [x] F6 — Página para cada controller (tabela no README)
+- [x] F7 — Front consome a API REST
+- [x] E1 — ZIP com `api/`, `web/`, `database/ddl/` e README; sem `node_modules`; com `package.json` e `package-lock.json`
+- [x] E1c — README com inicialização (back e front) e usuário de teste
+- [ ] E3 — Enviar `entrega/RM571266.zip` na plataforma (ação da Larissa)
