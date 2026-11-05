@@ -26,9 +26,9 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 | F02 | Componentes base, layout, rotas, Login, Cadastro e página de erro | F01 | ✅ |
 | F03 | Página inicial (resumo) + páginas de Gastos | F02 | ✅ |
 | F04 | Páginas de Receitas | F03 | ✅ |
-| F05 | Páginas de Investimentos | F02 | ⬜ |
-| F06 | Páginas de Contas bancárias e Categorias | F02 | ⬜ |
-| F07 | Perfil (consultar/editar/excluir usuário) | F02 | ⬜ |
+| F05 | Páginas de Investimentos | F02 | ✅ |
+| F06 | Páginas de Contas bancárias e Categorias | F02 | ✅ |
+| F07 | Perfil (consultar/editar/excluir usuário) | F02 | ✅ |
 | E01 | README de entrega, AGENTS.md, teste ponta a ponta e ZIP validado | B08, F03–F07 | ⬜ |
 
 Trilhas paralelas: **B01→B08** (back) e **F01→F07** (front) só se encontram em E01.
@@ -65,3 +65,10 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
 - F03/F04: 12 testes no web (GastoForm, ReceitaForm, DashboardPage, login, 404, cliente da API); build OK. Verificado no navegador com API real (Oracle local) e o usuário de teste: página inicial com saldo/receitas/gastos/investido vindos de `/resumo`, gastos por categoria e últimas transações (+/−); **Gastos**: inserir (total 1.979,25→2.024,75), editar com formulário pré-preenchido (70,00), cancelar a exclusão sem efeito e excluir; **Receitas**: inserir, editar (saldo da página inicial passou a 5.170,75 = 7.150,00 − 1.979,25) e excluir. O banco voltou ao estado inicial (3 gastos, 2 receitas).
 - Correção feita no plano e nas páginas (vale também para a F05): após excluir, o banner antigo "atualizado com sucesso" persistia (vinha do `location.state`); a mensagem agora é estado local e mostra "… excluído(a) com sucesso.".
 - Lint: avisos de boas práticas (`useDados`, `AuthContext` e a lista de opções exportada em `ReceitaForm`), sem erros.
+- F05/F06/F07: 19 testes no web (10 arquivos); build OK; lint sem erros (6 avisos de boas práticas). Verificado no navegador com API real (Oracle local), usuário de teste e um usuário descartável:
+  - **Investimentos**: taxa digitada em % a.a. vira fração (9,75 → rendimento 292,50); edição pré-preenchida; status Resgatado tira o investimento do total (rendimento do resumo permaneceu 840,00); excluir com confirmação.
+  - **Contas**: criar, editar e desativar; conta inativa some do formulário de gasto; excluir conta com lançamentos mostra o 409 "desative-a em vez de excluir" e a conta permanece; excluir conta sem lançamentos funciona.
+  - **Categorias**: criar, renomear, nome duplicado (ignora maiúsculas) mostra 409, categoria em uso (Moradia) mostra 409 e permanece, excluir categoria livre funciona.
+  - **Perfil/cadastro**: senhas diferentes bloqueadas no cliente; cadastro entra sozinho; editar nome atualiza menu e sessão; e-mail duplicado mostra 409; sem conta o formulário de gasto avisa para cadastrar em Contas; excluir a conta apaga usuário, conta e receita, encerra a sessão (login do excluído = 401). Usuário de teste ficou intacto (1/2/3/2 e 10 categorias).
+- Correção: import sem uso (`useCallback`) em `CategoriasPage` removido no arquivo e no plano.
+- Todas as páginas de domínio estão implementadas; resta a E01 (README de entrega, AGENTS.md, execução ponta a ponta na FIAP, ZIP e validação).
