@@ -14,11 +14,14 @@ contas bancárias, registra receitas e gastos (fixos/variáveis), controla dívi
 Prioridade do MVP (definida na especificação de requisitos):
 1. Cadastro de perfil → 2. Receitas → 3. Gastos → 4. Metas → 5. Dívidas
 
-Estado atual: documentação de análise concluída, protótipo front-end estático
-(HTML + Tailwind), modelo de domínio em Java (métodos de negócio ainda são stubs),
-camada de dados Oracle validada (local e na instância da FIAP) e, desde a Fase 7,
-**persistência via JDBC/DAO** para Usuario, Gasto e Investimento (mais Conta e
-Categoria como apoio). Ainda **não há** API nem integração front ↔ back.
+Estado atual: documentação de análise concluída, camada de dados Oracle validada
+(local e na instância da FIAP) e, desde a **Fase 8**, uma **API REST Spring Boot + JPA**
+(`api/`) integrada a uma **SPA React** (`web/`) com CRUD completo de Usuario, Conta bancária,
+Categoria, Receita, Gasto e Investimento, login e página inicial com resumo do mês.
+`backend/` (JDBC/DAO, Fase 7) e `frontend/` (protótipo HTML estático) ficam como histórico das
+fases anteriores. Dívidas, parcelas, metas e aportes ainda não têm API nem tela.
+Documento de entrega da Fase 8: `README.md` (raiz); plano e evidências em `tasks/fase8/`
+e `docs/07-api-spring-react/`.
 
 ## Estrutura
 
@@ -84,7 +87,38 @@ projeto-fintech/
         └── JdbcUtil.java           # LocalDate <-> java.sql.Date
 ```
 
+### Fase 8 — API Spring Boot + SPA React
+
+```
+README.md                  # documento de entrega: inicialização, usuário de teste, endpoints, mapa controller → página
+api/                       # Java 21 + Spring Boot 3.5.7 + Spring Data JPA (Maven Wrapper: ./mvnw)
+├── application-local.properties.example   # modelo; o application-local.properties real é ignorado pelo git
+└── src/main/java/br/com/fiap/fintech/
+    ├── model/ repository/ service/ controller/ dto/ exception/ config/
+    └── (DadosDemo cria o usuário de teste a cada subida)
+web/                       # React 19 + Vite + React Router + Tailwind CSS (Vitest para testes)
+└── src/{api,contexts,hooks,components,pages,utils}/ + router.jsx
+tasks/fase8/               # painel, plano de implementação e revisão crítica da Fase 8
+docs/07-api-spring-react/  # evidências de execução (FIAP e ponta a ponta)
+```
+
 ## Rastreabilidade (requisito → dados → código → tela)
+
+Fase 8 (vigente): cada recurso tem Entity + Repository + Service + Controller na `api/` e página(s) na `web/`.
+
+| Recurso (tabela)                          | Controller                | Página(s) React                                         |
+|-------------------------------------------|---------------------------|---------------------------------------------------------|
+| Login                                     | `AuthController`          | `/login`                                                |
+| Usuário (T_SF_USUARIO)                    | `UsuarioController`       | `/cadastro`, `/perfil`, `/` (resumo `GET /usuarios/{id}/resumo`) |
+| Receita (T_SF_RECEITA)                    | `ReceitaController`       | `/receitas`, `/receitas/novo`, `/receitas/:id/editar`   |
+| Gasto (T_SF_GASTO)                        | `GastoController`         | `/gastos`, `/gastos/novo`, `/gastos/:id/editar`         |
+| Investimento (T_SF_INVESTIMENTO)          | `InvestimentoController`  | `/investimentos`, `/investimentos/novo`, `/investimentos/:id/editar` |
+| Conta bancária (T_SF_CONTA_BANCARIA)      | `ContaBancariaController` | `/contas`                                               |
+| Categoria (T_SF_CATEGORIA)                | `CategoriaController`     | `/categorias`                                           |
+
+Fora da Fase 8: `T_SF_DIVIDA`, `T_SF_PARCELA`, `T_SF_META` e `T_SF_APORTE_META` (sem API nem tela).
+
+Histórico (fases 6 e 7, JDBC e protótipo estático):
 
 | User Story            | Tabela(s)                          | Classe Java     | Tela             |
 |-----------------------|------------------------------------|-----------------|------------------|
@@ -96,14 +130,31 @@ projeto-fintech/
 | Investimentos (Fase 6)| T_SF_INVESTIMENTO                  | Investimento + InvestimentoDAO | — |
 | (visão consolidada)   | todas                              | —               | index.html       |
 
-Lacunas conhecidas: `T_SF_PARCELA` e `T_SF_APORTE_META` ainda não têm classe Java;
-`Receita`, `Divida` e `Meta` ainda não têm DAO; a tela de investimentos e a de
-cadastro de perfil não existem; os DAOs só têm `insert()` e `getAll()` (sem
-update/delete/busca por id).
+Lacunas conhecidas do histórico (`backend/` JDBC): `T_SF_PARCELA` e `T_SF_APORTE_META` não têm classe
+Java; `Receita`, `Divida` e `Meta` não têm DAO; os DAOs só têm `insert()` e `getAll()`. A Fase 8
+substitui esse caminho por JPA; permanecem sem API/tela apenas dívidas, parcelas, metas e aportes.
 
 ## Como executar
 
-Front-end: abrir `frontend/index.html` no navegador (Tailwind via CDN — requer internet).
+API + SPA (Fase 8; JDK 21 em `JAVA_HOME` e Node 20.19+). Detalhes e usuário de teste no `README.md`:
+```bash
+# terminal 1 — API em http://localhost:8080/api (senha da FIAP em api/application-local.properties
+# ou na variável SPRING_DATASOURCE_PASSWORD; URL e usuário já estão no application.properties)
+cd api
+./mvnw spring-boot:run            # Windows: .\mvnw.cmd spring-boot:run
+
+# terminal 2 — SPA em http://localhost:5173
+cd web
+npm install
+npm run dev
+```
+Login de teste: `demo@fintech.com` / `Fintech@2026` (recriado a cada subida da API; esperar a linha
+`DadosDemo : Usuário de teste ...` no log). Testes: `cd api && ./mvnw test` (`-Dit.oracle=true` valida as
+entidades contra o Oracle configurado) e `cd web && npm test`. Para desenvolver no Oracle local, sobrescreva
+`spring.datasource.url`/`username`/`password` no `api/application-local.properties`.
+Testes manuais com acento via `curl` no Windows: enviar o corpo com `--data-binary @arquivo.json` (UTF-8).
+
+Histórico — front-end estático: abrir `frontend/index.html` no navegador (Tailwind via CDN — requer internet).
 
 Back-end (Java 17 ou 21, exigido pela Fase 7; o projeto IntelliJ usa language level 21):
 ```bash
@@ -150,6 +201,15 @@ locais estão em `database/README.md`.
   colunas explícitas (sem `SELECT *`; `senha` nunca é lida), try-with-resources, erros
   de `SQLException` convertidos em `DaoException` via `DaoException.de(...)`, domínios
   normalizados por `Dominios.normalizar` e dinheiro em `BigDecimal`.
-- Credenciais do banco nunca vão para o git (`backend/db.properties` e `database/.env.local`).
-- Artefatos gerados (`backend/out/`, `*.class`) não são versionados.
+- Credenciais do banco nunca vão para o git (`backend/db.properties`, `api/application-local.properties`
+  e `database/.env.local`); a URL e o usuário da FIAP ficam no `api/.../application.properties`.
+- API (Fase 8): pacotes por camada (`model`, `repository`, `service`, `controller`, `dto`, `exception`, `config`);
+  `ddl-auto=validate` (o DDL de `database/ddl/` é a fonte da verdade, o Hibernate não altera tabelas); DTOs de
+  entrada/saída (nunca devolver `senha`); regras de negócio no `service` com exceções de domínio
+  (`RecursoNaoEncontrada` 404, `Conflito` 409, `RegraNegocio` 422, `CredenciaisInvalidas` 401) traduzidas pelo
+  `GlobalExceptionHandler`; POST responde 201 + `Location`, DELETE 204; testes de service com Mockito e de
+  controller com MockMvc (`@WebMvcTest`).
+- SPA (Fase 8): componentes funcionais com hooks; uma função por endpoint em `web/src/api/`; sessão em
+  `AuthContext`; páginas de listagem/formulário por recurso; Tailwind com as cores da marca; testes com Vitest.
+- Artefatos gerados (`backend/out/`, `api/target/`, `web/node_modules/`, `web/dist/`, `*.class`) não são versionados.
 - Novos documentos de análise vão em `docs/NN-<tema>/`, mantendo a numeração por fase.
