@@ -1,8 +1,10 @@
 package br.com.fiap.fintech.controller;
 
+import br.com.fiap.fintech.dto.ResumoResponse;
 import br.com.fiap.fintech.dto.UsuarioResponse;
 import br.com.fiap.fintech.exception.ConflitoException;
 import br.com.fiap.fintech.exception.RecursoNaoEncontradoException;
+import br.com.fiap.fintech.service.ResumoFinanceiroService;
 import br.com.fiap.fintech.service.UsuarioService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static org.hamcrest.Matchers.endsWith;
@@ -26,6 +30,23 @@ class UsuarioControllerTest {
 
     @Autowired MockMvc mvc;
     @MockitoBean UsuarioService service;
+    @MockitoBean ResumoFinanceiroService resumoService;
+
+    @Test
+    void resumoDoMesRetorna200() throws Exception {
+        when(resumoService.resumir(1L, YearMonth.of(2026, 11))).thenReturn(new ResumoResponse("2026-11",
+                new BigDecimal("5000.00"), new BigDecimal("1979.25"), new BigDecimal("3020.75"),
+                new BigDecimal("5000.00"), new BigDecimal("625.00"), List.of()));
+        mvc.perform(get("/api/usuarios/1/resumo").param("mes", "2026-11"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(3020.75));
+    }
+
+    @Test
+    void resumoComMesInvalidoRetorna400() throws Exception {
+        mvc.perform(get("/api/usuarios/1/resumo").param("mes", "2026-13"))
+                .andExpect(status().isBadRequest());
+    }
 
     private final UsuarioResponse ana =
             new UsuarioResponse(1L, "Ana", "ana@email.com", null, LocalDate.of(2026, 1, 10), true);

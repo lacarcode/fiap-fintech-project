@@ -1,15 +1,19 @@
 package br.com.fiap.fintech.controller;
 
+import br.com.fiap.fintech.dto.ResumoResponse;
 import br.com.fiap.fintech.dto.UsuarioCreateRequest;
 import br.com.fiap.fintech.dto.UsuarioResponse;
 import br.com.fiap.fintech.dto.UsuarioUpdateRequest;
+import br.com.fiap.fintech.service.ResumoFinanceiroService;
 import br.com.fiap.fintech.service.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -17,9 +21,18 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService service;
+    private final ResumoFinanceiroService resumoService;
 
-    public UsuarioController(UsuarioService service) {
+    public UsuarioController(UsuarioService service, ResumoFinanceiroService resumoService) {
         this.service = service;
+        this.resumoService = resumoService;
+    }
+
+    /** Página inicial do front: saldo do mês, total investido e gastos por categoria. */
+    @GetMapping("/{id}/resumo")
+    public ResumoResponse resumo(@PathVariable Long id,
+                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth mes) {
+        return resumoService.resumir(id, mes);
     }
 
     @GetMapping
