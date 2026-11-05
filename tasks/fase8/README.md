@@ -16,10 +16,10 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 | P00 | Integrar Fase 7 na `main`, criar branch, `.gitignore` e `.gitattributes` | — | ✅ |
 | B01 | Projeto Spring Boot + 6 entidades JPA + repositories (validados contra o DDL) | P00 | ✅ |
 | B02 | Tratamento de erros + Usuario (service, login, controller) | B01 | ✅ |
-| B03 | ContaBancaria e Categoria — CRUD completo com regras | B02 | ⬜ |
-| B04 | Gasto (DTOs, service, controller) | B03 | ⬜ |
-| B05 | Receita (DTOs, service, controller) | B03 | ⬜ |
-| B06 | Investimento (DTOs, service, controller) | B03 | ⬜ |
+| B03 | ContaBancaria e Categoria — CRUD completo com regras | B02 | ✅ |
+| B04 | Gasto (DTOs, service, controller) | B03 | ✅ |
+| B05 | Receita (DTOs, service, controller) | B03 | ✅ |
+| B06 | Investimento (DTOs, service, controller) | B03 | ✅ |
 | B07 | Resumo financeiro (`GET /api/usuarios/{id}/resumo`) | B04, B05, B06 | ⬜ |
 | B08 | Dados de demonstração + execução na FIAP + evidências | B07 | ⬜ |
 | F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ✅ |
@@ -56,3 +56,5 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
 - F01: Vite 8 + React 19 (exige Node 20.19+; máquina com Node 26). 4 testes passando; build OK. `oxlint` acusa 2 avisos de boas práticas (setState em efeito no `useDados`; `AuthContext` exporta hook e componente) — não bloqueiam.
 - B02: 22 testes na API (1 de integração ignorado sem `-Dit.oracle=true`). Verificado com curl no Oracle local: POST 201 + `Location`, e-mail duplicado 409, validação 400 com detalhes, 404, login 200, CORS liberado para a 5173, DELETE 204 e GET seguinte 404; a senha nunca aparece na resposta.
 - F02: 7 testes no web. Verificado no navegador com API real: `/gastos` sem login redireciona para `/login`; cadastro cria o usuário, entra sozinho e cai em `/` com a sessão salva; rota inexistente mostra o 404 personalizado; "Sair" limpa a sessão. Páginas de domínio ainda são provisórias ("Em construção") até F03–F07.
+- B03–B06: 93 testes na API (1 de integração ignorado sem `-Dit.oracle=true`); `./mvnw test` verde. Bateria real no Oracle local (POST/GET/PUT/DELETE nos 4 controllers + regras): 201/200/204/404 nos ciclos; 422 para conta de outro usuário, categoria de tipo errado, tipo de conta inválido, vencimento anterior à aplicação, PUT transferindo dono; 409 para categoria duplicada, conta com lançamentos e categoria em uso; 400 para valor negativo. Normalização de acentos confirmada (`Variável`→`VARIAVEL`, `Salário`→`SALARIO`).
+- Armadilha de ambiente: no Git Bash do Windows, `curl -d` com acento envia bytes fora de UTF-8 e a API responde 400 (comportamento correto). Em testes manuais com acento, usar `--data-binary @arquivo.json` (UTF-8).
