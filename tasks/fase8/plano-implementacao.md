@@ -5462,13 +5462,16 @@ export default function GastosPage() {
   const [paraExcluir, setParaExcluir] = useState(null);
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState(null);
+  const [mensagem, setMensagem] = useState(location.state?.mensagem ?? null);
 
   async function confirmarExclusao() {
     setExcluindo(true);
     setErroExclusao(null);
+    setMensagem(null);
     try {
       await excluirGasto(paraExcluir.id);
       setDados(gastos.filter((g) => g.id !== paraExcluir.id));
+      setMensagem('Gasto excluído com sucesso.');
     } catch (e) {
       setErroExclusao(e.message);
     } finally {
@@ -5486,7 +5489,7 @@ export default function GastosPage() {
         descricao={gastos ? `${gastos.length} gasto(s) · total ${formatarMoeda(total)}` : 'Seus gastos'}
         acao={<Link to="/gastos/novo" className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-claro">Novo gasto</Link>}
       />
-      {location.state?.mensagem && <Alerta tipo="sucesso">{location.state.mensagem}</Alerta>}
+      {mensagem && <Alerta tipo="sucesso">{mensagem}</Alerta>}
       {erroExclusao && <Alerta>{erroExclusao}</Alerta>}
       {carregando && <Carregando />}
       {erro && <Alerta>{erro}</Alerta>}
@@ -5891,13 +5894,16 @@ export default function ReceitasPage() {
   const [paraExcluir, setParaExcluir] = useState(null);
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState(null);
+  const [mensagem, setMensagem] = useState(location.state?.mensagem ?? null);
 
   async function confirmarExclusao() {
     setExcluindo(true);
     setErroExclusao(null);
+    setMensagem(null);
     try {
       await excluirReceita(paraExcluir.id);
       setDados(receitas.filter((r) => r.id !== paraExcluir.id));
+      setMensagem('Receita excluída com sucesso.');
     } catch (e) {
       setErroExclusao(e.message);
     } finally {
@@ -5915,7 +5921,7 @@ export default function ReceitasPage() {
         descricao={receitas ? `${receitas.length} receita(s) · total ${formatarMoeda(total)}` : 'Suas receitas'}
         acao={<Link to="/receitas/novo" className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-claro">Nova receita</Link>}
       />
-      {location.state?.mensagem && <Alerta tipo="sucesso">{location.state.mensagem}</Alerta>}
+      {mensagem && <Alerta tipo="sucesso">{mensagem}</Alerta>}
       {erroExclusao && <Alerta>{erroExclusao}</Alerta>}
       {carregando && <Carregando />}
       {erro && <Alerta>{erro}</Alerta>}
@@ -6181,13 +6187,16 @@ export default function InvestimentosPage() {
   const [paraExcluir, setParaExcluir] = useState(null);
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState(null);
+  const [mensagem, setMensagem] = useState(location.state?.mensagem ?? null);
 
   async function confirmarExclusao() {
     setExcluindo(true);
     setErroExclusao(null);
+    setMensagem(null);
     try {
       await excluirInvestimento(paraExcluir.id);
       setDados(investimentos.filter((i) => i.id !== paraExcluir.id));
+      setMensagem('Investimento excluído com sucesso.');
     } catch (e) {
       setErroExclusao(e.message);
     } finally {
@@ -6203,7 +6212,7 @@ export default function InvestimentosPage() {
         descricao="Consulte, cadastre, edite e exclua suas aplicações"
         acao={<Link to="/investimentos/novo" className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-claro">Novo investimento</Link>}
       />
-      {location.state?.mensagem && <Alerta tipo="sucesso">{location.state.mensagem}</Alerta>}
+      {mensagem && <Alerta tipo="sucesso">{mensagem}</Alerta>}
       {erroExclusao && <Alerta>{erroExclusao}</Alerta>}
       {carregando && <Carregando />}
       {erro && <Alerta>{erro}</Alerta>}
