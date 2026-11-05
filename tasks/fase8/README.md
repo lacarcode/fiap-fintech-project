@@ -1,0 +1,97 @@
+# Plano de Tarefas — Fase 8: API Spring Boot + Front-end React
+
+Plano detalhado (código, testes e comandos de cada tarefa): [`plano-implementacao.md`](plano-implementacao.md).
+Revisão crítica contra o enunciado (matriz requisito × plano, correções R1–R11): [`revisao-critica.md`](revisao-critica.md).
+
+Entidades com CRUD completo (back + front): **Usuario, Receita, Gasto, Investimento, ContaBancaria, Categoria**.
+Entidades financeiras com CRUD (mínimo exigido = 3): Receita, Gasto e Investimento.
+Banco: DDL atual (`database/ddl/01-create-tables.sql`) aplicado na FIAP; o JPA só **valida** (`ddl-auto=validate`).
+Entrega: ZIP com `api/`, `web/` (sem `node_modules`), `database/ddl/` e `README.md`.
+Branch: `feat/spring-react` (criada a partir da `main` depois do merge da Fase 7).
+
+Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Concluída`
+
+| ID  | Tarefa | Depende de | Status |
+|-----|--------|------------|--------|
+| P00 | Integrar Fase 7 na `main`, criar branch, `.gitignore` e `.gitattributes` | — | ✅ |
+| B01 | Projeto Spring Boot + 6 entidades JPA + repositories (validados contra o DDL) | P00 | ✅ |
+| B02 | Tratamento de erros + Usuario (service, login, controller) | B01 | ✅ |
+| B03 | ContaBancaria e Categoria — CRUD completo com regras | B02 | ✅ |
+| B04 | Gasto (DTOs, service, controller) | B03 | ✅ |
+| B05 | Receita (DTOs, service, controller) | B03 | ✅ |
+| B06 | Investimento (DTOs, service, controller) | B03 | ✅ |
+| B07 | Resumo financeiro (`GET /api/usuarios/{id}/resumo`) | B04, B05, B06 | ✅ |
+| B08 | Dados de demonstração + execução na FIAP + evidências | B07 | ✅ |
+| F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ✅ |
+| F02 | Componentes base, layout, rotas, Login, Cadastro e página de erro | F01 | ✅ |
+| F03 | Página inicial (resumo) + páginas de Gastos | F02 | ✅ |
+| F04 | Páginas de Receitas | F03 | ✅ |
+| F05 | Páginas de Investimentos | F02 | ✅ |
+| F06 | Páginas de Contas bancárias e Categorias | F02 | ✅ |
+| F07 | Perfil (consultar/editar/excluir usuário) | F02 | ✅ |
+| E01 | README de entrega, AGENTS.md, teste ponta a ponta e ZIP validado | B08, F03–F07 | ✅ |
+
+Trilhas paralelas: **B01→B08** (back) e **F01→F07** (front) só se encontram em E01.
+O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas compartilham.
+
+## Decisões
+- D-F8-01 — Manter o DDL atual; Hibernate com `ddl-auto=validate` (nunca cria nem apaga tabela).
+- D-F8-02 — Projetos novos em `api/` e `web/`; `backend/` (JDBC, Fase 7) e `frontend/` (protótipo HTML) ficam como histórico.
+- D-F8-03 — Login simples: `POST /api/auth/login` confere o hash BCrypt (só `spring-security-crypto`, sem Spring Security/JWT); a sessão fica no front (Context + localStorage). Limitação conhecida: a API não verifica posse dos dados.
+- D-F8-04 — Pacotes por camada (`model`, `repository`, `service`, `controller`, `dto`), porque o enunciado avalia as camadas explicitamente.
+- D-F8-05 — Usuário de teste garantido na subida da API (`DadosDemo`), com senha configurável; resolve a falta de hash conhecido na FIAP.
+- D-F8-06 — `DELETE /api/usuarios/{id}` remove receitas, gastos, investimentos e contas do usuário na mesma transação; se houver metas/dívidas, responde 409.
+- D-F8-07 (revisão) — Todo controller tem GET/POST/PUT/DELETE e página no front (R2/R3); Receita entra como 4ª entidade com CRUD (R1).
+- D-F8-08 (revisão) — URL e usuário da FIAP ficam no `application.properties`; só a senha fica fora do git (R5).
+- D-F8-09 (revisão) — A página inicial é `/` (dashboard logado), alimentada por `GET /api/usuarios/{id}/resumo` (R4).
+
+## Pendências para decidir antes de E01
+- [x] Credenciais da FIAP no ZIP — **decidido: incluir** `api/application-local.properties` só no ZIP (nunca no git; `entrega/` está no `.gitignore`).
+- [x] Nome do ZIP — **decidido: `RM571266.zip`**.
+- [ ] Confirmar se esta atividade é mesmo a "Fase 8" (nomes de pasta `tasks/fase8/` e `docs/07-api-spring-react/`).
+
+## Notas de execução
+- P00 (2026-11-04): branch `feat/spring-react` criada a partir da `feat/dao-jdbc` (o PR da Fase 7 ainda não foi aberto; depende de confirmação da Larissa). Se a Fase 7 for mesclada antes, basta rebasear.
+- B01: o Spring Initializr só aceita Boot >= 4.0 hoje; ele foi usado só para obter o Maven Wrapper (3.10.0). O `pom.xml` fixa Boot 3.5.7. `SchemaOracleTest` passou no Oracle local com `ddl-auto=validate` **sem** `columnDefinition` extra nos ids (o risco previsto não ocorreu). 2 testes unitários + 1 de integração.
+- F01: Vite 8 + React 19 (exige Node 20.19+; máquina com Node 26). 4 testes passando; build OK. `oxlint` acusa 2 avisos de boas práticas (setState em efeito no `useDados`; `AuthContext` exporta hook e componente) — não bloqueiam.
+- B02: 22 testes na API (1 de integração ignorado sem `-Dit.oracle=true`). Verificado com curl no Oracle local: POST 201 + `Location`, e-mail duplicado 409, validação 400 com detalhes, 404, login 200, CORS liberado para a 5173, DELETE 204 e GET seguinte 404; a senha nunca aparece na resposta.
+- F02: 7 testes no web. Verificado no navegador com API real: `/gastos` sem login redireciona para `/login`; cadastro cria o usuário, entra sozinho e cai em `/` com a sessão salva; rota inexistente mostra o 404 personalizado; "Sair" limpa a sessão. Páginas de domínio ainda são provisórias ("Em construção") até F03–F07.
+- B03–B06: 93 testes na API (1 de integração ignorado sem `-Dit.oracle=true`); `./mvnw test` verde. Bateria real no Oracle local (POST/GET/PUT/DELETE nos 4 controllers + regras): 201/200/204/404 nos ciclos; 422 para conta de outro usuário, categoria de tipo errado, tipo de conta inválido, vencimento anterior à aplicação, PUT transferindo dono; 409 para categoria duplicada, conta com lançamentos e categoria em uso; 400 para valor negativo. Normalização de acentos confirmada (`Variável`→`VARIAVEL`, `Salário`→`SALARIO`).
+- Armadilha de ambiente: no Git Bash do Windows, `curl -d` com acento envia bytes fora de UTF-8 e a API responde 400 (comportamento correto). Em testes manuais com acento, usar `--data-binary @arquivo.json` (UTF-8).
+- B07: 98 testes na API (inclui `SchemaOracleTest` com `-Dit.oracle=true`, que valida as consultas JPQL novas). Verificado no Oracle local com dados conhecidos: novembro = receitas 5000, gastos 1979,25, saldo 3020,75, investido 5000 (só ATIVO), rendimento 625,00, gastos por categoria ordenados; datas de fronteira (01/11, 30/11, 31/10) caem no mês certo; sem `mes` usa o mês atual; mês inválido 400; usuário inexistente 404.
+- B08 (parte local, concluída): `DadosDemo` cria categorias de gasto e de receita e o usuário `demo@fintech.com` com 1 conta, 2 receitas, 3 gastos e 2 investimentos. Verificado no Oracle local: login 200 com a senha do README; resumo do mês coerente (receitas 6200, gastos 1979,25, saldo 4220,75, investido 7000); 2ª subida logou "já existe: senha e status redefinidos" sem duplicar (1/2/3/2); senha trocada via PUT é redefinida na 3ª subida (original volta a dar 200, a trocada dá 401).
+- B08 (parte FIAP, concluída em 2026-11-04): a API subiu na FIAP usando URL e usuário do `application.properties` e a senha só por variável de ambiente; `ddl-auto=validate` passou; 10 tabelas `T_SF_*`, 0 objetos inválidos; bateria de 48 chamadas com 0 divergências; tudo que a bateria criou foi removido (resta só a carga de demonstração). Evidência: `docs/07-api-spring-react/evidencias/execucao-api-fiap.md`.
+- Atenção para o README de entrega: o `ApplicationRunner` roda ~0,4 s **depois** de o Tomcat abrir a porta; um login feito nessa janela dá 401. Orientar a esperar a linha `Usuário de teste ... criado/já existe` no log antes de entrar.
+- F03/F04: 12 testes no web (GastoForm, ReceitaForm, DashboardPage, login, 404, cliente da API); build OK. Verificado no navegador com API real (Oracle local) e o usuário de teste: página inicial com saldo/receitas/gastos/investido vindos de `/resumo`, gastos por categoria e últimas transações (+/−); **Gastos**: inserir (total 1.979,25→2.024,75), editar com formulário pré-preenchido (70,00), cancelar a exclusão sem efeito e excluir; **Receitas**: inserir, editar (saldo da página inicial passou a 5.170,75 = 7.150,00 − 1.979,25) e excluir. O banco voltou ao estado inicial (3 gastos, 2 receitas).
+- Correção feita no plano e nas páginas (vale também para a F05): após excluir, o banner antigo "atualizado com sucesso" persistia (vinha do `location.state`); a mensagem agora é estado local e mostra "… excluído(a) com sucesso.".
+- Lint: avisos de boas práticas (`useDados`, `AuthContext` e a lista de opções exportada em `ReceitaForm`), sem erros.
+- F05/F06/F07: 19 testes no web (10 arquivos); build OK; lint sem erros (6 avisos de boas práticas). Verificado no navegador com API real (Oracle local), usuário de teste e um usuário descartável:
+  - **Investimentos**: taxa digitada em % a.a. vira fração (9,75 → rendimento 292,50); edição pré-preenchida; status Resgatado tira o investimento do total (rendimento do resumo permaneceu 840,00); excluir com confirmação.
+  - **Contas**: criar, editar e desativar; conta inativa some do formulário de gasto; excluir conta com lançamentos mostra o 409 "desative-a em vez de excluir" e a conta permanece; excluir conta sem lançamentos funciona.
+  - **Categorias**: criar, renomear, nome duplicado (ignora maiúsculas) mostra 409, categoria em uso (Moradia) mostra 409 e permanece, excluir categoria livre funciona.
+  - **Perfil/cadastro**: senhas diferentes bloqueadas no cliente; cadastro entra sozinho; editar nome atualiza menu e sessão; e-mail duplicado mostra 409; sem conta o formulário de gasto avisa para cadastrar em Contas; excluir a conta apaga usuário, conta e receita, encerra a sessão (login do excluído = 401). Usuário de teste ficou intacto (1/2/3/2 e 10 categorias).
+- Correção: import sem uso (`useCallback`) em `CategoriasPage` removido no arquivo e no plano.
+- Todas as páginas de domínio estão implementadas; resta a E01 (README de entrega, AGENTS.md, execução ponta a ponta na FIAP, ZIP e validação).
+- E01 (2026-11-04): README de entrega e `AGENTS.md` atualizados; teste ponta a ponta na FIAP em `docs/07-api-spring-react/evidencias/teste-ponta-a-ponta.md` (10 passos; banco da FIAP idêntico antes e depois); suítes: API 98/98 com `-Dit.oracle=true`, web 19/19 + build.
+- ZIP: `entrega/RM571266.zip` (147 arquivos, 147 KB) com `api/`, `web/` (sem `node_modules`; com `package.json` e `package-lock.json`), `database/ddl/` e `README.md`; `mvnw` com LF e permissão 755; entradas com `/`; só o `application-local.properties` contém a senha e `application.properties` não tem senha. Validado numa pasta limpa seguindo só o README: API subiu na FIAP, `npm install` + 19 testes + `npm run dev`, login do usuário de teste pela tela e 98 testes da API.
+- Armadilhas desta etapa: (1) `grep -c $'\r'` neste shell casa todas as linhas (falso positivo de CRLF); medir com `tr -cd '\r' | wc -c`. (2) `Compress-Archive` do PowerShell 5.1 grava `\` nos nomes do ZIP; usar Python `zipfile` com `create_system = 3`. (3) O container do Oracle local para quando o WSL encerra: reiniciar antes de rodar `-Dit.oracle=true`.
+
+## Checklist final contra o enunciado
+- [x] B1 — Entidades JPA: Usuario, ContaBancaria, Categoria, Receita, Gasto, Investimento
+- [x] B2 — Repository JPA para cada entidade (6)
+- [x] B3 — Service com regras de negócio para cada repository (+ resumo e auth)
+- [x] B4 — Todo RestController com GET, POST, PUT e DELETE
+- [x] B5 — Status HTTP por verbo (200/201/204/400/401/404/409/422), cobertos por testes MockMvc e verificados na FIAP
+- [x] B6 — Tabelas na instância FIAP (DDL no ZIP; consulta `USER_TABLES` na evidência)
+- [x] B7 — API conectada à FIAP (`application.properties` + log de subida)
+- [x] B8 — Mais de 3 entidades com todas as camadas (Receita, Gasto, Investimento, Usuario, Conta, Categoria)
+- [x] F1 — Componentização
+- [x] F2 — Rotas SPA
+- [x] F3 — Props e estado (hooks) entre componentes
+- [x] F4 — Página de login
+- [x] F5 — Página inicial e página de erro personalizada
+- [x] F6 — Página para cada controller (tabela no README)
+- [x] F7 — Front consome a API REST
+- [x] E1 — ZIP com `api/`, `web/`, `database/ddl/` e README; sem `node_modules`; com `package.json` e `package-lock.json`
+- [x] E1c — README com inicialização (back e front) e usuário de teste
+- [ ] E3 — Enviar `entrega/RM571266.zip` na plataforma (ação da Larissa)
