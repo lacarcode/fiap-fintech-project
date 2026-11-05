@@ -13,8 +13,8 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 
 | ID  | Tarefa | Depende de | Status |
 |-----|--------|------------|--------|
-| P00 | Integrar Fase 7 na `main`, criar branch, `.gitignore` e `.gitattributes` | — | ⬜ |
-| B01 | Projeto Spring Boot + 6 entidades JPA + repositories (validados contra o DDL) | P00 | ⬜ |
+| P00 | Integrar Fase 7 na `main`, criar branch, `.gitignore` e `.gitattributes` | — | ✅ |
+| B01 | Projeto Spring Boot + 6 entidades JPA + repositories (validados contra o DDL) | P00 | ✅ |
 | B02 | Tratamento de erros + Usuario (service, login, controller) | B01 | ⬜ |
 | B03 | ContaBancaria e Categoria — CRUD completo com regras | B02 | ⬜ |
 | B04 | Gasto (DTOs, service, controller) | B03 | ⬜ |
@@ -22,7 +22,7 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 | B06 | Investimento (DTOs, service, controller) | B03 | ⬜ |
 | B07 | Resumo financeiro (`GET /api/usuarios/{id}/resumo`) | B04, B05, B06 | ⬜ |
 | B08 | Dados de demonstração + execução na FIAP + evidências | B07 | ⬜ |
-| F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ⬜ |
+| F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ✅ |
 | F02 | Componentes base, layout, rotas, Login, Cadastro e página de erro | F01 | ⬜ |
 | F03 | Página inicial (resumo) + páginas de Gastos | F02 | ⬜ |
 | F04 | Páginas de Receitas | F03 | ⬜ |
@@ -51,4 +51,6 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
 - [ ] Confirmar se esta atividade é mesmo a "Fase 8" (nomes de pasta `tasks/fase8/` e `docs/07-api-spring-react/`).
 
 ## Notas de execução
-(preencher durante a execução)
+- P00 (2026-11-04): branch `feat/spring-react` criada a partir da `feat/dao-jdbc` (o PR da Fase 7 ainda não foi aberto; depende de confirmação da Larissa). Se a Fase 7 for mesclada antes, basta rebasear.
+- B01: o Spring Initializr só aceita Boot >= 4.0 hoje; ele foi usado só para obter o Maven Wrapper (3.10.0). O `pom.xml` fixa Boot 3.5.7. `SchemaOracleTest` passou no Oracle local com `ddl-auto=validate` **sem** `columnDefinition` extra nos ids (o risco previsto não ocorreu). 2 testes unitários + 1 de integração.
+- F01: Vite 8 + React 19 (exige Node 20.19+; máquina com Node 26). 4 testes passando; build OK. `oxlint` acusa 2 avisos de boas práticas (setState em efeito no `useDados`; `AuthContext` exporta hook e componente) — não bloqueiam.
