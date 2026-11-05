@@ -21,7 +21,7 @@ Status: `⬜ A fazer` · `🟨 Em andamento` · `🟥 Bloqueada` · `✅ Conclu�
 | B05 | Receita (DTOs, service, controller) | B03 | ✅ |
 | B06 | Investimento (DTOs, service, controller) | B03 | ✅ |
 | B07 | Resumo financeiro (`GET /api/usuarios/{id}/resumo`) | B04, B05, B06 | ✅ |
-| B08 | Dados de demonstração + execução na FIAP + evidências | B07 | 🟨 |
+| B08 | Dados de demonstração + execução na FIAP + evidências | B07 | ✅ |
 | F01 | Projeto React (Vite, Tailwind, Router, Vitest) + cliente da API + AuthContext | P00 | ✅ |
 | F02 | Componentes base, layout, rotas, Login, Cadastro e página de erro | F01 | ✅ |
 | F03 | Página inicial (resumo) + páginas de Gastos | F02 | ⬜ |
@@ -60,5 +60,5 @@ O contrato da API (seção "Contrato REST" do plano) é o que as duas trilhas co
 - Armadilha de ambiente: no Git Bash do Windows, `curl -d` com acento envia bytes fora de UTF-8 e a API responde 400 (comportamento correto). Em testes manuais com acento, usar `--data-binary @arquivo.json` (UTF-8).
 - B07: 98 testes na API (inclui `SchemaOracleTest` com `-Dit.oracle=true`, que valida as consultas JPQL novas). Verificado no Oracle local com dados conhecidos: novembro = receitas 5000, gastos 1979,25, saldo 3020,75, investido 5000 (só ATIVO), rendimento 625,00, gastos por categoria ordenados; datas de fronteira (01/11, 30/11, 31/10) caem no mês certo; sem `mes` usa o mês atual; mês inválido 400; usuário inexistente 404.
 - B08 (parte local, concluída): `DadosDemo` cria categorias de gasto e de receita e o usuário `demo@fintech.com` com 1 conta, 2 receitas, 3 gastos e 2 investimentos. Verificado no Oracle local: login 200 com a senha do README; resumo do mês coerente (receitas 6200, gastos 1979,25, saldo 4220,75, investido 7000); 2ª subida logou "já existe: senha e status redefinidos" sem duplicar (1/2/3/2); senha trocada via PUT é redefinida na 3ª subida (original volta a dar 200, a trocada dá 401).
-- B08 — **pendente**: execução contra a instância da FIAP (precisa da senha da FIAP), consulta `USER_TABLES` e evidência em `docs/07-api-spring-react/evidencias/execucao-api-fiap.md`.
+- B08 (parte FIAP, concluída em 2026-11-04): a API subiu na FIAP usando URL e usuário do `application.properties` e a senha só por variável de ambiente; `ddl-auto=validate` passou; 10 tabelas `T_SF_*`, 0 objetos inválidos; bateria de 48 chamadas com 0 divergências; tudo que a bateria criou foi removido (resta só a carga de demonstração). Evidência: `docs/07-api-spring-react/evidencias/execucao-api-fiap.md`.
 - Atenção para o README de entrega: o `ApplicationRunner` roda ~0,4 s **depois** de o Tomcat abrir a porta; um login feito nessa janela dá 401. Orientar a esperar a linha `Usuário de teste ... criado/já existe` no log antes de entrar.
