@@ -6566,7 +6566,7 @@ export default function ContasPage() {
 
 `pages/CategoriasPage.jsx`:
 ```jsx
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { atualizarCategoria, criarCategoria, excluirCategoria, listarCategorias } from '../api/categorias';
 import Alerta from '../components/Alerta';
 import CategoriaForm from '../components/categorias/CategoriaForm';
